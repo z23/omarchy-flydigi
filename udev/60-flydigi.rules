@@ -1,0 +1,9 @@
+# Let the logged-in user configure a Flydigi controller without root.
+# Installed by omarchy-flydigi's install.sh. Same rule as z23/flydigictl.
+
+# XInput mode uses the Xbox 360 id. The manufacturer string keeps a real Xbox controller out.
+SUBSYSTEM=="usb", ATTR{idVendor}=="045e", ATTR{idProduct}=="028e", ATTR{manufacturer}=="Flydigi", MODE="0660", TAG+="uaccess"
+
+# DInput mode. Current Flydigi pads share this id; vader4-rgb checks the product string before opening it.
+SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="2412", MODE="0660", TAG+="uaccess"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="04b4", ATTRS{idProduct}=="2412", MODE="0660", TAG+="uaccess"

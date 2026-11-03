@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.z23.flydigi",
+  "name": "Flydigi Vader 4",
+  "version": "1.0.0",
+  "author": "z23",
+  "license": "GPL-3.0-only",
+  "description": "Set the light bar on a Flydigi Vader 4 Pro from the Omarchy bar: solid colors, the factory stream effect, brightness, and an option to follow the theme accent.",
+  "kinds": [
+    "service",
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "service": "Service.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Flydigi Vader 4",
+    "description": "Light bar color, effect, and brightness for a Flydigi Vader 4 Pro.",
+    "category": "Hardware",
+    "aliases": [
+      "controller",
+      "gamepad",
+      "vader",
+      "rgb",
+      "lighting"
+    ],
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "followTheme": "Off",
+      "showWhenDisconnected": "Off"
+    },
+    "schema": [
+      {
+        "key": "followTheme",
+        "type": "enum",
+        "label": "Match the theme accent",
+        "options": [
+          "On",
+          "Off"
+        ],
+        "defaultValue": "Off",
+        "description": "Set the light bar to the theme accent when the theme changes or the controller connects. In XInput mode the controller disconnects for a moment each time."
+      },
+      {
+        "key": "showWhenDisconnected",
+        "type": "enum",
+        "label": "Show when disconnected",
+        "options": [
+          "On",
+          "Off"
+        ],
+        "defaultValue": "Off",
+        "description": "Keep the icon in the bar while no controller is connected."
+      }
+    ]
+  }
+}

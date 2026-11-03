@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: helper/go.mod
+
+      - name: Helper
+        working-directory: helper
+        run: |
+          test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+          go vet ./...
+          go test ./...
+          CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/vader4-rgb" .
+          "$RUNNER_TEMP/vader4-rgb" --version
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Model.js
+        run: node --test tests/model.test.mjs
+
+      # The same checks as `omarchy plugin validate`, which needs Omarchy itself.
+      - name: Manifest
+        run: |
+          jq -e '.schemaVersion == 1' manifest.json
+          for field in id name version author description kinds entryPoints; do
+            jq -e --arg f "$field" 'has($f)' manifest.json >/dev/null || { echo "missing $field"; exit 1; }
+          done
+          jq -e '.id | test("^[a-z0-9][a-z0-9._-]*$") and (startswith("omarchy.") | not)' manifest.json
+          jq -e '.barWidget.defaultSection | IN("left", "center", "right")' manifest.json
+          jq -r '.entryPoints[]' manifest.json | while read -r ep; do
+            case $ep in /* | *..*) echo "unsafe entry point $ep"; exit 1 ;; esac
+            test -f "$ep" || { echo "missing entry point $ep"; exit 1; }
+          done
+          links=$(find . -name .git -prune -o -type l -print)
+          test -z "$links" || { echo "symlinks are not allowed: $links"; exit 1; }
+          bash -n install.sh
+          bash -n uninstall.sh
